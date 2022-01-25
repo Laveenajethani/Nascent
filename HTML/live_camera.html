@@ -1,0 +1,124 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Camera</title>
+    <style>
+        h1{
+            font-family: sans-serif;
+            color: green;
+            text-align: center;
+            margin-bottom: 8%;
+            font-size: 50px;
+        }
+        body{
+            margin: 50px;
+        }
+        #container{
+            width: 500px;
+            height: 375px;
+        }
+        #videoElement {
+            width: 500px;
+            height: 375px;
+            background-color: lightgreen;
+            border: 10px green solid;
+        }
+        #canvas{
+            border: 10px green solid;
+            background-color: lightgreen;
+            margin-top: 60px;
+        }
+        #container-output{
+            width: 250px;
+            height: 250px;
+        }
+        .main_container{
+            display: grid;
+            grid-template-columns: 1300px 0px 0px 1300px;
+        }
+        .controller{
+            text-align: center;
+            margin: 10px;
+        }
+        #snap{
+            padding: 10px;
+            margin-top: 100px;
+            width: 20%;
+            height: 10%;
+            border: none;
+            background-color: green;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 25px;
+        }
+        #snap:hover{
+            background-color: lightgreen;
+            color: black;
+        }
+        #counter{
+            color: green;
+            position: relative;
+            bottom: 20;
+        }
+        p{
+            text-align: center;
+            font-size: 20px;
+            color: green;
+            font-weight: bolder;
+        }
+    </style>
+</head>
+<body>
+    <h1>Display Webcam Stream</h1>
+    <div class="main_container">
+        <div id="container">
+            <video src="" autoplay="true" id="videoElement"></video>
+            <p>Input Webcam</p>
+        </div>
+        <h2 id="counter">Count: &nbsp;</h2>
+        <div id="container-output">
+            <canvas id="canvas" width="230" height="230"></canvas>
+            <p>Output Captured Images</p>
+        </div>
+    </div>
+    <div class="controller">
+        <button id="snap">Capture</button>
+    </div>
+
+    <script>
+        let video = document.querySelector("#videoElement");
+        let canvas = document.querySelector('#canvas');
+        let snap = document.querySelector('#snap');
+
+        if(navigator.mediaDevices.getUserMedia){
+            navigator.mediaDevices.getUserMedia( { video: true} ).then(function(stream){
+                video.srcObject = stream;
+                window.stream = stream;
+            }).catch(function(error){
+                console.log("Something went wrong");
+            });
+        }
+        else{
+            console.log("getUserMedia not supported");
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        var context = canvas.getContext('2d');
+        snap.addEventListener("click",async function(){
+            for(var i=1; i<=10; i++){
+                document.getElementById("counter").innerHTML = 'Count: ' + i;
+                context.drawImage(video,0,0,230,230);
+                console.log(i);
+                await sleep(350);
+            }
+        });
+
+    </script>
+</body>
+</html>
