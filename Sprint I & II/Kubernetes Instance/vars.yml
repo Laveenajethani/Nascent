@@ -1,0 +1,30 @@
+---
+# vars file for kubernetes.instance
+# Aws region name
+aws_region: ap-south-1
+
+# Amazon AMI ID
+aws_ami: 
+
+# Instance type for instance
+aws_instance_type: t2.micro
+
+# Subnet ID
+subnet_id: 
+
+# Security group to attach with instance
+security_group_id: 
+
+# key-pair for ssh into instance
+key: 
+
+# Instance Name for Master & Worker nodes
+name:
+  - K8S_Master
+  - K8S_Worker1
+  - K8S_Worker2
+
+# Access & secret key for IAM user
+access_key: 
+secret_key: 
+---
