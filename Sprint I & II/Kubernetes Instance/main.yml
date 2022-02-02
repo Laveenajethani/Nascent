@@ -1,0 +1,16 @@
+---
+# tasks file for kubernetes.instance
+- name:  launching the Instances for kubernetes cluster-Master and Worker Node
+  ec2_instance:
+    region: "{{ aws_region }}"
+    image_id: "{{ aws_ami }}"
+    instance_type: "{{ aws_instance_type }}"
+    vpc_subnet_id: "{{ subnet_id }}"
+    security_group: "{{ security_group_id }}"
+    key_name: "{{ key }}"
+    name: "{{ item }}"
+    state: present
+    aws_access_key: "{{ access_key }}"
+    aws_secret_key: "{{ secret_key }}"
+  loop: "{{ name }}"
+---
