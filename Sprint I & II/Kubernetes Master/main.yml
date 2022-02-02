@@ -1,0 +1,97 @@
+---
+# tasks file for kubernetes.master
+- name: Configure yum repo for Kubernetes
+  yum_repository:
+    name: kubernetes
+    baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-\$basearch
+    enabled: yes
+    gpgcheck: yes
+    repo_gpgcheck: yes
+    gpgkey:
+      - https://packages.cloud.google.com/yum/doc/yum-key.gpg
+      - https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+    description: "Yum repository for Kubernetes"
+
+
+- name: Install required packages
+  yum:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ pkgs }}"
+
+
+- name: Start and enable kubelet
+  service:
+    name: "{{ item }}"
+    state: started
+    enabled: yes
+  loop: "{{ services }}"
+  register: svc_start
+
+
+- name: Docker config image
+  shell:
+    cmd: "kubeadm config images pull"
+  when: svc_start.changed
+
+
+- name: Change docker cgroup
+  copy:
+    dest: "{{ docker_daemon }}"
+    src: daemon.json
+  notify: restart docker
+- name: Force handler to execute
+  meta: flush_handlers
+
+
+- name: Copy k8s.conf file to master
+  copy:
+    src: k8s.conf
+    dest: "{{ kubernetes_config }}"
+  register: result
+
+
+- name: Load settings from all system configuration files
+  shell:
+    cmd: sysctl --system
+  when: result.changed
+
+
+- name: Start the kubernetes master
+  shell:
+    cmd: "kubeadm init --pod-network-cidr=10.244.0.0/16 --ignore-preflight-errors=NumCPU --ignore-preflight-errors=Mem"
+  when: result.changed
+
+
+- name: Create folder for kube
+  file:
+    path: $HOME/.kube
+    state: directory
+  register: kube_dir
+
+
+- name: Copy admin.conf file to kube
+  copy:
+    src: "/etc/kubernetes/admin.conf"
+    dest: "$HOME/.kube/config"
+    owner: "{{ kube_dir.owner }}"
+    group: "{{ kube_dir.group }}"
+    remote_src: yes
+  when: kube_dir.changed
+- name: Get join command
+  shell:
+    cmd: "kubeadm token create --print-join-command"
+  register: output
+
+
+- name: "Dummy host to register join command"
+  add_host:
+    name: Dummy_Host
+    join_cmd: "{{ output.stdout }}"
+  when: output.changed
+
+- name: Setup flannel network
+  command: "kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml"
+  when: result.changed
+--- 
+
