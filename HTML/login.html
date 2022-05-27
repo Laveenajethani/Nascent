@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login Form</title>
+    <link
+      href="https://fonts.googleapis.com/css?family=Nunito:400,300"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link rel="stylesheet" href="/CSS/login.css" />
+  </head>
+  <body>
+    <form action="home_page.html">
+      <h1>Login</h1>
+      <fieldset>
+        <label for="mail">Email:</label>
+        <input type="email" id="mail" name="user_email" />
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="user_password" />
+      </fieldset>
+      <input type="button" value="Take Snapshot" onClick="take_snapshot()" />
+      <div id="my_camera" style="float: left;"></div>
+      <div id="results" style="float: left;">Your captured image will appear here...</div>
+      <!-- First, include the Webcam.js JavaScript Library -->
+      <script type="text/javascript" src="/JS/webcam.min.js"></script>
+      <script type="text/javascript" src="/JS/webcam.js"></script>
+
+      <!-- Configure a few settings and attach camera -->
+      <script language="JavaScript">
+        Webcam.set({
+          width: 320,
+          height: 240,
+          image_format: "jpeg",
+          jpeg_quality: 90,
+        });
+        Webcam.attach("#my_camera");
+      </script>
+      <script language="JavaScript">
+        function take_snapshot() {
+          // take snapshot and get image data
+          Webcam.snap(function (data_uri) {
+            // display results in page
+            document.getElementById("results").innerHTML =
+              "<h2>Here is your image:</h2>" + '<img src="' + data_uri + '"/>';
+            console.log(data_uri);
+            console.log("Start Image Uploading");
+            //var output = imageUpload(data_uri);
+            //console.log(output);
+          });
+        }
+      </script>
+      <button type="submit">Login</button>
+    </form>
+  </body>
+</html>
